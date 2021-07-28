@@ -6,8 +6,8 @@ data class MADAssistantPermissions(
     var timestampStart: Long? = null,
     var timestampEnd: Long? = null,
     var deviceId: String? = null,
-    var networkCalls: NetworkCallsPermissionModel = NetworkCallsPermissionModel(),
-    var analytics: AnalyticsCallsPermissionModel = AnalyticsCallsPermissionModel(),
+    var networkCalls: ApiCallsPermissionModel = ApiCallsPermissionModel(),
+    var analytics: AnalyticsPermissionModel = AnalyticsPermissionModel(),
     var exceptions: ExceptionsPermissionModel = ExceptionsPermissionModel(),
     var genericLogs: GenericLogsPermissionModel = GenericLogsPermissionModel(),
     var randomString: String? = System.currentTimeMillis().toString()
@@ -34,16 +34,16 @@ data class MADAssistantPermissions(
 
         networkCalls = try {
             json.getOr(KEY_networkCalls, JSONObject())
-                .run { NetworkCallsPermissionModel(this) }
+                .run { ApiCallsPermissionModel(this) }
         } catch (ex: Exception) {
-            NetworkCallsPermissionModel()
+            ApiCallsPermissionModel()
         }
 
         analytics = try {
             json.getOr(KEY_analytics, JSONObject())
-                .run { AnalyticsCallsPermissionModel(this) }
+                .run { AnalyticsPermissionModel(this) }
         } catch (ex: Exception) {
-            AnalyticsCallsPermissionModel()
+            AnalyticsPermissionModel()
         }
 
         exceptions = try {

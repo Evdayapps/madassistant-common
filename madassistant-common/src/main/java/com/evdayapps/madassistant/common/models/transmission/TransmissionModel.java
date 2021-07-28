@@ -19,6 +19,7 @@ public class TransmissionModel implements Parcelable {
             return new TransmissionModel[size];
         }
     };
+    
     public long sessionId;
     public String transmissionId;
     public long timestamp;
@@ -29,14 +30,14 @@ public class TransmissionModel implements Parcelable {
     public byte[] payload;
 
     public TransmissionModel(
-        long sessionId,
-        String transmissionId,
-        long timestamp,
-        boolean encrypted,
-        int numTotalSegments,
-        int currentSegmentIndex,
-        int type,
-        byte[] payload
+            long sessionId,
+            String transmissionId,
+            long timestamp,
+            boolean encrypted,
+            int numTotalSegments,
+            int currentSegmentIndex,
+            int type,
+            byte[] payload
     ) {
         this.sessionId = sessionId;
         this.transmissionId = transmissionId;

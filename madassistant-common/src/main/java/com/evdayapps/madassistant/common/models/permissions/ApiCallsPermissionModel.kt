@@ -3,7 +3,7 @@ package com.evdayapps.madassistant.common.models.permissions
 import org.json.JSONException
 import org.json.JSONObject
 
-data class NetworkCallsPermissionModel(
+data class ApiCallsPermissionModel(
     var enabled: Boolean = false,
     var read: Boolean = false,
     var share: Boolean = false,

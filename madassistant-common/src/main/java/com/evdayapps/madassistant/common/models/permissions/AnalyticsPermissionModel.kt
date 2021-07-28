@@ -2,7 +2,7 @@ package com.evdayapps.madassistant.common.models.permissions
 
 import org.json.JSONObject
 
-data class AnalyticsCallsPermissionModel(
+data class AnalyticsPermissionModel(
     var enabled: Boolean = false,
     var read: Boolean = false,
     var share: Boolean = false,
