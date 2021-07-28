@@ -89,6 +89,7 @@ class MADAssistantCipherImpl(
     ): String {
         val plainTextbytes: ByteArray = plainText.toByteArray(charset = charset)
         val keyBytes = getKeyBytes(passPhrase)
+
         return Base64.encodeToString(
             encrypt(plainTextbytes, keyBytes, keyBytes),
             Base64.NO_WRAP
@@ -107,6 +108,7 @@ class MADAssistantCipherImpl(
     override fun decrypt(cipherText: String): String? {
         val cipheredBytes: ByteArray = Base64.decode(cipherText, Base64.NO_WRAP)
         val keyBytes = getKeyBytes(passPhrase)
+
         return String(decrypt(cipheredBytes, keyBytes, keyBytes)!!, charset)
     }
 }
