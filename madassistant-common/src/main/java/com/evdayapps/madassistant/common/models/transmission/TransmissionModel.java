@@ -19,7 +19,7 @@ public class TransmissionModel implements Parcelable {
             return new TransmissionModel[size];
         }
     };
-    
+
     public long sessionId;
     public String transmissionId;
     public long timestamp;

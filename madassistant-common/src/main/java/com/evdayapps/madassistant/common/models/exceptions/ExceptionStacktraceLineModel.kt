@@ -5,7 +5,7 @@ import org.json.JSONObject
 class ExceptionStacktraceLineModel {
 
     val className: String
-    val fileName: String
+    val fileName: String?
     val nativeMethod: Boolean
     val methodName: String
     val lineNumber: Int
@@ -30,7 +30,7 @@ class ExceptionStacktraceLineModel {
     constructor(json: String) {
         JSONObject(json).apply {
             className = getString(keyClassName)
-            fileName = getString(keyFileName)
+            fileName = optString(keyFileName)
             nativeMethod = getBoolean(keyNativeMethod)
             methodName = getString(keyMethodName)
             lineNumber = getInt(keyLineNumber)
