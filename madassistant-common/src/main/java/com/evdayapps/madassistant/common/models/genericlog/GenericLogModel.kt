@@ -1,9 +1,14 @@
 package com.evdayapps.madassistant.common.models.genericlog
 
 import org.json.JSONObject
-import java.lang.Exception
 
-class GenericLogModel {
+data class GenericLogModel(
+    val threadName: String,
+    val type: Int,
+    val tag: String,
+    val message: String,
+    val data: JSONObject?
+) {
 
     companion object {
         private const val KEY_threadName = "threadName"
@@ -13,51 +18,40 @@ class GenericLogModel {
         private const val KEY_data = "data"
     }
 
-    val threadName : String
-    val type : Int
-    val tag : String
-    val message : String
-    val data : JSONObject?
-
     constructor(
-        threadName : String,
-        type : Int,
-        tag : String,
-        message : String,
-        data : Map<String, Any?>? = null
-    ) {
-        this.threadName = threadName
-        this.tag = tag
-        this.type = type
-        this.message = message
-        this.data = JSONObject()
-        data?.let {
-            JSONObject().let { js ->
-                data.forEach {
-                    js.put(it.key, it.value)
-                }
+        threadName: String,
+        type: Int,
+        tag: String,
+        message: String,
+        data: Map<String, Any?>? = null
+    ) : this(
+        threadName = threadName,
+        tag = tag,
+        type = type,
+        message = message,
+        data = JSONObject().apply {
+            data?.forEach {
+                put(it.key, it.value)
             }
         }
-    }
+    )
 
     @Throws(Exception::class)
-    constructor(json : String) {
-        JSONObject(json).apply {
-            threadName = getString(KEY_threadName)
-            type = getInt(KEY_type)
-            tag = getString(KEY_tag)
-            message = getString(KEY_message)
-            data = optJSONObject(KEY_data)
-        }
-    }
+    constructor(json: JSONObject) : this(
+        threadName = json.getString(KEY_threadName),
+        type = json.getInt(KEY_type),
+        tag = json.getString(KEY_tag),
+        message = json.getString(KEY_message),
+        data = json.optJSONObject(KEY_data)
+    )
 
-    fun toJsonObject() : JSONObject {
+    fun toJsonObject(): JSONObject {
         return JSONObject().apply {
             put(KEY_threadName, threadName)
             put(KEY_type, type)
             put(KEY_tag, tag)
             put(KEY_message, message)
-            data?.let { put(KEY_data, it) }
+            putOpt(KEY_data, data)
         }
     }
 

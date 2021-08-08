@@ -1,14 +1,16 @@
 package com.evdayapps.madassistant.common.models.permissions
 
+import com.evdayapps.madassistant.common.kotlinx.getStringOrNull
 import org.json.JSONObject
 
 data class ExceptionsPermissionModel(
     var enabled: Boolean = false,
     var read: Boolean = false,
     var share: Boolean = false,
+    // Filters
     var filterType: String? = null,
     var filterMessage: String? = null,
-
+    // Crashes
     var crashesEnabled: Boolean = false,
 ) {
 
@@ -22,24 +24,23 @@ data class ExceptionsPermissionModel(
     }
 
     @Throws(Exception::class)
-    constructor(json: JSONObject) : this() {
-        json.run {
-            enabled = optBoolean(KEY_enabled, false)
-            read = optBoolean(KEY_read, false)
-            share = optBoolean(KEY_share, false)
-            crashesEnabled = optBoolean(KEY_logCrashes, false)
-            filterType = if (has(KEY_filterType)) getString(KEY_filterType) else null
-            filterMessage = if (has(KEY_filterMessage)) getString(KEY_filterMessage) else null
-        }
-    }
+    constructor(json: JSONObject) : this(
+        enabled = json.optBoolean(KEY_enabled, false),
+        read = json.optBoolean(KEY_read, false),
+        share = json.optBoolean(KEY_share, false),
+        crashesEnabled = json.optBoolean(KEY_logCrashes, false),
+        filterType = json.getStringOrNull(KEY_filterType),
+        filterMessage = json.getStringOrNull(KEY_filterMessage)
+    )
 
-    fun toJsonObject() : JSONObject {
+    fun toJsonObject(): JSONObject {
         return JSONObject().apply {
             put(KEY_enabled, enabled)
             put(KEY_read, read)
             put(KEY_share, share)
-            put(KEY_filterType, filterType)
-            put(KEY_filterMessage, filterMessage)
+
+            putOpt(KEY_filterType, filterType)
+            putOpt(KEY_filterMessage, filterMessage)
         }
     }
 

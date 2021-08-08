@@ -1,17 +1,27 @@
 package com.evdayapps.madassistant.common.models.exceptions
 
+import com.evdayapps.madassistant.common.kotlinx.getStringOrNull
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ExceptionModel {
-
-    val exceptionThreadName: String
-    val crash: Boolean
-    val type: String?
-    val message: String?
-    val stackTrace: List<ExceptionStacktraceLineModel>
-    val cause: ExceptionModel?
-    val threads: Map<String, List<ExceptionStacktraceLineModel>>?
+/**
+ * @property exceptionThreadName The thread on which the exception occured
+ * @property crash Is this a crash?
+ * @property type The className of the exception
+ * @property message The message retrieved from the throwable
+ * @property stackTrace Stacktrace from the throwable
+ * @property cause Cause of the exception, if any
+ * @property threads Stacktraces for the other threads
+ */
+data class ExceptionModel(
+    var exceptionThreadName: String,
+    var crash: Boolean,
+    var type: String?,
+    var message: String?,
+    var stackTrace: List<ExceptionStacktraceLineModel>,
+    var cause: ExceptionModel?,
+    var threads: Map<String, List<ExceptionStacktraceLineModel>>?
+) {
 
     companion object {
         private const val KEY_exceptionThreadName = "exceptionThreadName"
@@ -21,6 +31,27 @@ class ExceptionModel {
         private const val KEY_stacktrace = "stacktrace"
         private const val KEY_cause = "cause"
         private const val KEY_threads = "threads"
+
+        private fun getThreadsStacktrace(json: JSONObject): Map<String, List<ExceptionStacktraceLineModel>> {
+            try {
+                val map = mutableMapOf<String, List<ExceptionStacktraceLineModel>>()
+                json.keys().forEach { key ->
+                    val arr = json.getJSONArray(key)
+                    val list = mutableListOf<ExceptionStacktraceLineModel>()
+                    for (i in 0 until arr.length()) {
+                        val line = arr.getJSONObject(i)
+                            .run { ExceptionStacktraceLineModel(this) }
+                        list.add(line)
+                    }
+                    map[key] = list
+                }
+
+                return map
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+            }
+            return mapOf()
+        }
     }
 
     /**
@@ -34,13 +65,12 @@ class ExceptionModel {
         throwable: Throwable,
         isCrash: Boolean,
         nested: Boolean = false
-    ) {
-        exceptionThreadName = threadName
-        crash = isCrash
-        type = throwable.javaClass.canonicalName
-        message = throwable.message
-        stackTrace = throwable.stackTrace.map { ExceptionStacktraceLineModel(it) }
-
+    ) : this(
+        exceptionThreadName = threadName,
+        crash = isCrash,
+        type = throwable.javaClass.canonicalName,
+        message = throwable.message,
+        stackTrace = throwable.stackTrace.map { ExceptionStacktraceLineModel(it) },
         cause = throwable.cause?.run {
             ExceptionModel(
                 threadName = threadName,
@@ -48,63 +78,45 @@ class ExceptionModel {
                 isCrash = false,
                 nested = true
             )
-        }
-
-        threads = if (!nested) {
-            mutableMapOf<String, List<ExceptionStacktraceLineModel>>().apply {
-                putAll(
-                    Thread.getAllStackTraces().map {
+        },
+        threads = when {
+            !nested -> mutableMapOf<String, List<ExceptionStacktraceLineModel>>().apply {
+                Thread.getAllStackTraces()
+                    .map {
                         Pair(
                             first = it.key.name,
                             second = it.value.map { ExceptionStacktraceLineModel(it) }
                         )
+                    }.apply {
+                        putAll(this)
                     }
-                )
             }
-        } else null
-    }
+            else -> null
+        },
+    )
 
     @Throws(Exception::class)
-    constructor(json: String) {
-        JSONObject(json).apply {
-            exceptionThreadName = getString(KEY_exceptionThreadName)
-            crash = optBoolean(KEY_isCrash, true)
-            type = getString(KEY_type)
-            message = optString(KEY_message)
-            cause = if (has(KEY_cause)) getString(KEY_cause).run { ExceptionModel(this) } else null
-            threads = if (!has(KEY_threads)) null else getThreadsStacktrace(getString(KEY_threads))
-            stackTrace = getJSONArray(KEY_stacktrace).run {
-                mutableListOf<ExceptionStacktraceLineModel>().apply {
-                    for (i in 0 until this@run.length()) {
-                        add(ExceptionStacktraceLineModel(getString(i)))
-                    }
+    constructor(json: JSONObject) : this(
+        exceptionThreadName = json.getString(KEY_exceptionThreadName),
+        crash = json.optBoolean(KEY_isCrash, true),
+        type = json.getStringOrNull(KEY_type),
+        message = json.getStringOrNull(KEY_message),
+        cause = json.optJSONObject(KEY_cause)?.run {
+            try {
+                ExceptionModel(this)
+            } catch (ex: Exception) {
+                null
+            }
+        },
+        threads = json.optJSONObject(KEY_threads)?.run { getThreadsStacktrace(this) },
+        stackTrace = json.getJSONArray(KEY_stacktrace).run {
+            mutableListOf<ExceptionStacktraceLineModel>().apply {
+                for (i in 0 until this@run.length()) {
+                    add(ExceptionStacktraceLineModel(getJSONObject(i)))
                 }
             }
         }
-    }
-
-    private fun getThreadsStacktrace(string : String) : Map<String, List<ExceptionStacktraceLineModel>> {
-        try {
-            val map = mutableMapOf<String , List<ExceptionStacktraceLineModel>>()
-            val json = JSONObject(string)
-            json.keys().forEach { key ->
-                val arr = json.getJSONArray(key)
-                val list = mutableListOf<ExceptionStacktraceLineModel>()
-                for(i in 0 until arr.length()) {
-                    arr.getString(i)
-                        .run { ExceptionStacktraceLineModel(this) }
-                        .let { list.add(it) }
-
-                }
-                map[key] = list
-            }
-
-            return map
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
-        return mapOf()
-    }
+    )
 
     @Throws(Exception::class)
     fun toJsonObject(): JSONObject {
@@ -112,26 +124,23 @@ class ExceptionModel {
             put(KEY_exceptionThreadName, exceptionThreadName)
             put(KEY_isCrash, crash)
             put(KEY_type, type)
-            put(KEY_message, message)
-            cause?.run { put(KEY_cause, this.toJsonObject()) }
+            putOpt(KEY_message, message)
+            cause?.run {
+                put(KEY_cause, this.toJsonObject())
+            }
             threads
-                ?.let {
-                    JSONObject()
-                        .apply {
-                            it.forEach {
-                                put(
-                                    it.key,
-                                    JSONArray().apply {
-                                        it.value.forEach {
-                                            put(it.toJsonObject())
-                                        }
-                                    }
-                                )
-                            }
-                        }.let {
-                            put(KEY_threads, it)
+                ?.apply {
+                    val obj = JSONObject()
+                    this.forEach {
+                        val array = JSONArray()
+                        it.value.forEach { value ->
+                            array.put(value.toJsonObject())
                         }
+                        obj.put(it.key, array)
+                    }
+                    put(KEY_threads, obj)
                 }
+
             put(KEY_stacktrace, JSONArray().apply {
                 stackTrace.forEach {
                     put(it.toJsonObject())

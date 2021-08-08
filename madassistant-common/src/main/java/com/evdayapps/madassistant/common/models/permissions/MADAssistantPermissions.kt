@@ -1,15 +1,16 @@
 package com.evdayapps.madassistant.common.models.permissions
 
+import com.evdayapps.madassistant.common.kotlinx.getOr
 import org.json.JSONObject
 
 data class MADAssistantPermissions(
     var timestampStart: Long? = null,
     var timestampEnd: Long? = null,
     var deviceId: String? = null,
-    var networkCalls: ApiCallsPermissionModel = ApiCallsPermissionModel(),
-    var analytics: AnalyticsPermissionModel = AnalyticsPermissionModel(),
-    var exceptions: ExceptionsPermissionModel = ExceptionsPermissionModel(),
-    var genericLogs: GenericLogsPermissionModel = GenericLogsPermissionModel(),
+    var networkCalls: ApiCallsPermissionModel? = null,
+    var analytics: AnalyticsPermissionModel? = null,
+    var exceptions: ExceptionsPermissionModel? = null,
+    var genericLogs: GenericLogsPermissionModel? = null,
     var randomString: String? = System.currentTimeMillis().toString()
 ) {
 
@@ -25,81 +26,64 @@ data class MADAssistantPermissions(
     }
 
     constructor(json: JSONObject) : this() {
-        randomString = json.getOr(KEY_randomString, "")
+        randomString = json.optString(KEY_randomString, "")
 
         timestampStart = json.getOr(KEY_timestampStart, null)
         timestampEnd = json.getOr(KEY_timestampEnd, null)
 
-        deviceId = json.getOr(KEY_deviceId, "")
+        deviceId = json.optString(KEY_deviceId, "")
 
-        networkCalls = try {
-            json.getOr(KEY_networkCalls, JSONObject())
-                .run { ApiCallsPermissionModel(this) }
-        } catch (ex: Exception) {
-            ApiCallsPermissionModel()
+        networkCalls = json.optJSONObject(KEY_networkCalls)?.run {
+            try {
+                ApiCallsPermissionModel(this)
+            } catch (ex: Exception) {
+                null
+            }
         }
 
-        analytics = try {
-            json.getOr(KEY_analytics, JSONObject())
-                .run { AnalyticsPermissionModel(this) }
-        } catch (ex: Exception) {
-            AnalyticsPermissionModel()
+        analytics = json.optJSONObject(KEY_analytics)?.run {
+            try {
+                AnalyticsPermissionModel(this)
+            } catch (ex: Exception) {
+                null
+            }
         }
 
-        exceptions = try {
-            json.getOr(KEY_exceptions, JSONObject())
-                .run { ExceptionsPermissionModel(this) }
-        } catch (ex: Exception) {
-            ExceptionsPermissionModel()
+        exceptions = json.optJSONObject(KEY_exceptions)?.run {
+            try {
+                ExceptionsPermissionModel(this)
+            } catch (ex: Exception) {
+                null
+            }
         }
 
-        genericLogs = try {
-            json.getOr(KEY_genericLogs, JSONObject())
-                .run { GenericLogsPermissionModel(this) }
-        } catch (ex: Exception) {
-            GenericLogsPermissionModel()
+        genericLogs = json.optJSONObject(KEY_genericLogs)?.run {
+            try {
+                GenericLogsPermissionModel(this)
+            } catch (ex: Exception) {
+                null
+            }
         }
     }
 
     fun toJsonObject(): JSONObject {
-        networkCalls.enabled = networkCalls.share || networkCalls.read
-        analytics.enabled = analytics.share || analytics.read
-        exceptions.enabled = exceptions.share || exceptions.read
-        genericLogs.enabled = genericLogs.share || genericLogs.read
+        networkCalls?.apply { enabled = share || read }
+        genericLogs?.apply { enabled = share || read }
+        analytics?.apply { enabled = share || read }
+        exceptions?.apply { enabled = share || read }
 
         return JSONObject().apply {
             put(KEY_deviceId, deviceId)
 
             put(KEY_randomString, randomString)
 
-            put(KEY_timestampStart, timestampStart)
-            put(KEY_timestampEnd, timestampEnd)
+            putOpt(KEY_timestampStart, timestampStart)
+            putOpt(KEY_timestampEnd, timestampEnd)
 
-            put(KEY_networkCalls, networkCalls.toJsonObject())
-            put(KEY_genericLogs, genericLogs.toJsonObject())
-            put(KEY_exceptions, exceptions.toJsonObject())
-            put(KEY_analytics, analytics.toJsonObject())
+            putOpt(KEY_networkCalls, networkCalls?.toJsonObject())
+            putOpt(KEY_genericLogs, genericLogs?.toJsonObject())
+            putOpt(KEY_exceptions, exceptions?.toJsonObject())
+            putOpt(KEY_analytics, analytics?.toJsonObject())
         }
-    }
-
-    override fun toString(): String {
-        return "MADAssistantPermissions(" +
-                "timestampStart=$timestampStart, " +
-                "timestampEnd=$timestampEnd, " +
-                "deviceId='$deviceId', " +
-                "networkCalls=$networkCalls, " +
-                "analytics=$analytics, " +
-                "crashReports=$exceptions, " +
-                "genericLogs=$genericLogs, " +
-                "randomString='$randomString'" +
-                ")"
-    }
-}
-
-fun <T> JSONObject.getOr(key: String, defaultValue: T): T {
-    return try {
-        if (has(key)) (get(key) as T) else defaultValue
-    } catch (ex: Exception) {
-        defaultValue
     }
 }

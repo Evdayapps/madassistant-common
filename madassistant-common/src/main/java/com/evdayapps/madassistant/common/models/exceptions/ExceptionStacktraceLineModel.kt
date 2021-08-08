@@ -2,13 +2,13 @@ package com.evdayapps.madassistant.common.models.exceptions
 
 import org.json.JSONObject
 
-class ExceptionStacktraceLineModel {
-
-    val className: String
-    val fileName: String?
-    val nativeMethod: Boolean
-    val methodName: String
+data class ExceptionStacktraceLineModel(
+    val className: String,
+    val fileName: String?,
+    val nativeMethod: Boolean,
+    val methodName: String,
     val lineNumber: Int
+) {
 
     companion object {
         const val keyClassName = "className"
@@ -18,24 +18,22 @@ class ExceptionStacktraceLineModel {
         const val keyLineNumber = "lineNumber"
     }
 
-    constructor(element: StackTraceElement) {
-        this.className = element.className
-        this.fileName = element.fileName
-        this.nativeMethod = element.isNativeMethod
-        this.methodName = element.methodName
-        this.lineNumber = element.lineNumber
-    }
+    constructor(element: StackTraceElement) : this(
+        className = element.className,
+        fileName = element.fileName,
+        nativeMethod = element.isNativeMethod,
+        methodName = element.methodName,
+        lineNumber = element.lineNumber
+    )
 
     @Throws(Exception::class)
-    constructor(json: String) {
-        JSONObject(json).apply {
-            className = getString(keyClassName)
-            fileName = optString(keyFileName)
-            nativeMethod = getBoolean(keyNativeMethod)
-            methodName = getString(keyMethodName)
-            lineNumber = getInt(keyLineNumber)
-        }
-    }
+    constructor(json: JSONObject) : this(
+        className = json.getString(keyClassName),
+        fileName = json.optString(keyFileName),
+        nativeMethod = json.getBoolean(keyNativeMethod),
+        methodName = json.getString(keyMethodName),
+        lineNumber = json.getInt(keyLineNumber),
+    )
 
     fun toJsonObject(): JSONObject {
         return JSONObject().apply {

@@ -1,5 +1,6 @@
 package com.evdayapps.madassistant.common.cipher
 
+import com.evdayapps.madassistant.common.models.permissions.MADAssistantPermissions
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -24,6 +25,14 @@ class MADAssistantCipherImplTest {
         val deciphered = cipher.decrypt(ciphered)
 
         assertEquals(plainText, deciphered)
+    }
+
+    @Test
+    fun testPermissionModel() {
+        val input = MADAssistantPermissions(
+            deviceId = "fsdfsdfsd",
+
+        )
     }
 
 }

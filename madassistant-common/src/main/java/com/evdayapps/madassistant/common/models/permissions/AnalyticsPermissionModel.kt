@@ -1,5 +1,6 @@
 package com.evdayapps.madassistant.common.models.permissions
 
+import com.evdayapps.madassistant.common.kotlinx.getStringOrNull
 import org.json.JSONObject
 
 data class AnalyticsPermissionModel(
@@ -15,34 +16,31 @@ data class AnalyticsPermissionModel(
         private const val KEY_enabled = "enabled"
         private const val KEY_read = "read"
         private const val KEY_share = "share"
+
         private const val KEY_filterDestination = "filterDestination"
         private const val KEY_filterEventName = "filterEventName"
         private const val KEY_filterParamData = "filterParamData"
     }
 
     @Throws(Exception::class)
-    constructor(json: JSONObject) : this() {
-        json.run {
-            enabled = optBoolean(KEY_enabled, false)
-            read = optBoolean(KEY_read, false)
-            share = optBoolean(KEY_share, false)
-            filterDestination = if (has(KEY_filterDestination)) getString(
-                KEY_filterDestination
-            ) else null
-            filterEventName =
-                if (has(KEY_filterEventName)) getString(KEY_filterEventName) else null
-            filterParamData = if (has(KEY_filterParamData)) getString(KEY_filterParamData) else null
-        }
-    }
+    constructor(json: JSONObject) : this(
+        enabled = json.optBoolean(KEY_enabled, false),
+        read = json.optBoolean(KEY_read, false),
+        share = json.optBoolean(KEY_share, false),
+        filterDestination = json.getStringOrNull(KEY_filterDestination),
+        filterEventName = json.getStringOrNull(KEY_filterEventName),
+        filterParamData = json.getStringOrNull(KEY_filterParamData),
+    )
 
     fun toJsonObject(): JSONObject {
         return JSONObject().apply {
             put(KEY_enabled, enabled)
             put(KEY_read, read)
             put(KEY_share, share)
-            put(KEY_filterDestination, filterDestination)
-            put(KEY_filterEventName, filterEventName)
-            put(KEY_filterParamData, filterParamData)
+
+            putOpt(KEY_filterDestination, filterDestination)
+            putOpt(KEY_filterEventName, filterEventName)
+            putOpt(KEY_filterParamData, filterParamData)
         }
     }
 

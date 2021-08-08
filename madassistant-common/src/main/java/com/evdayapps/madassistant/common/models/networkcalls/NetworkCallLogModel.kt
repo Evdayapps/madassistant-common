@@ -19,11 +19,11 @@ import org.json.JSONObject
  */
 class NetworkCallLogModel {
 
-    var threadName : String? = null
-    var connectTimeoutMillis : Int? = null
-    var readTimeoutMillis : Int? = null
+    var threadName: String? = null
+    var connectTimeoutMillis: Int? = null
+    var readTimeoutMillis: Int? = null
     var writeTimeoutMillis: Int? = null
-    var protocol : String? = null
+    var protocol: String? = null
     var method: String = ""
     var url: String = ""
     var requestHeaders: JSONArray? = null
@@ -32,16 +32,17 @@ class NetworkCallLogModel {
     var responseHeaders: JSONArray? = null
     var responseStatusCode: Int? = null
     var responseTimestamp: Long = 0
-    var gzippedLength : Long? = null
+    var gzippedLength: Long? = null
     var responseLength: Long? = null
     var responseBody: String? = null
-    var exception : ExceptionModel? = null
+    var exception: ExceptionModel? = null
 
     companion object {
         private const val KEY_threadName = "threadName"
         private const val KEY_protocol = "protocol"
         const val KEY_method = "method"
         const val KEY_url = "url"
+
         // Request
         private const val KEY_connect_timeout_ms = "connect_timeout_ms"
         private const val KEY_read_timeout_ms = "read_timeout_ms"
@@ -49,6 +50,7 @@ class NetworkCallLogModel {
         const val KEY_request_timestamp = "request_timestamp"
         const val KEY_request_headers = "request_headers"
         const val KEY_request_body = "request_body"
+
         // Response
         const val KEY_response_headers = "response_headers"
         const val KEY_response_status_code = "response_status"
@@ -56,6 +58,7 @@ class NetworkCallLogModel {
         const val KEY_response_body = "response_body"
         private const val KEY_response_length = "response_length"
         private const val KEY_response_gzipped_length = "response_gzipped_length"
+
         // Exception
         private const val KEY_exception = "exception"
     }
@@ -88,7 +91,7 @@ class NetworkCallLogModel {
 
             // Exception
             exception = optJSONObject(KEY_exception)?.run {
-                ExceptionModel(this.toString())
+                ExceptionModel(this)
             }
         }
     }
@@ -112,8 +115,9 @@ class NetworkCallLogModel {
             put(KEY_response_body, responseBody)
             put(KEY_response_headers, responseHeaders)
             put(KEY_response_length, responseLength)
-            gzippedLength?.run { put(KEY_response_gzipped_length, this) }
-            exception?.run { put(KEY_exception, this.toJsonObject()) }
+
+            putOpt(KEY_response_gzipped_length, this)
+            putOpt(KEY_exception, exception?.toJsonObject())
         }
     }
 

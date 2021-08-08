@@ -2,7 +2,12 @@ package com.evdayapps.madassistant.common.models.analytics
 
 import org.json.JSONObject
 
-class AnalyticsEventModel {
+data class AnalyticsEventModel(
+    var threadName: String,
+    var destination: String,
+    var name: String,
+    var parameters: JSONObject
+) {
 
     companion object {
         private const val KEY_threadName = "threadName"
@@ -11,36 +16,29 @@ class AnalyticsEventModel {
         private const val KEY_parameters = "parameters"
     }
 
-    val threadName: String
-    val destination: String
-    val name: String
-    val parameters: JSONObject
-
     constructor(
         threadName: String,
         destination: String,
         name: String,
         params: Map<String, Any?>
-    ) {
-        this.threadName = threadName
-        this.destination = destination
-        this.name = name
-        this.parameters = JSONObject().apply {
+    ) : this(
+        threadName = threadName,
+        destination = destination,
+        name = name,
+        parameters = JSONObject().apply {
             params.forEach {
                 put(it.key, it.value)
             }
         }
-    }
+    )
 
     @Throws(Exception::class)
-    constructor(json: String) {
-        JSONObject(json).run {
-            threadName = getString(KEY_threadName)
-            destination = getString(KEY_destination)
-            name = getString(KEY_name)
-            parameters = getJSONObject(KEY_parameters)
-        }
-    }
+    constructor(json: JSONObject) : this(
+        threadName = json.getString(KEY_threadName),
+        destination = json.getString(KEY_destination),
+        name = json.getString(KEY_name),
+        parameters = json.getJSONObject(KEY_parameters)
+    )
 
     fun toJsonObject(): JSONObject {
         return JSONObject().apply {

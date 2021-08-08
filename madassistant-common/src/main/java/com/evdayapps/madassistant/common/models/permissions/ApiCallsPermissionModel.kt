@@ -1,5 +1,6 @@
 package com.evdayapps.madassistant.common.models.permissions
 
+import com.evdayapps.madassistant.common.kotlinx.getStringOrNull
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -20,23 +21,21 @@ data class ApiCallsPermissionModel(
     }
 
     @Throws(JSONException::class)
-    constructor(json: JSONObject) : this() {
-        json.run {
-            enabled = optBoolean(KEY_enabled, false)
-            read = optBoolean(KEY_read, false)
-            share = optBoolean(KEY_share, false)
-            filterMethod = if (has(KEY_filterMethod)) getString(KEY_filterMethod) else null
-            filterUrl = if (has(KEY_filterUrl)) getString(KEY_filterUrl) else null
-        }
-    }
+    constructor(json: JSONObject) : this(
+        enabled = json.optBoolean(KEY_enabled, false),
+        read = json.optBoolean(KEY_read, false),
+        share = json.optBoolean(KEY_share, false),
+        filterMethod = json.getStringOrNull(KEY_filterMethod),
+        filterUrl = json.getStringOrNull(KEY_filterUrl)
+    )
 
     fun toJsonObject(): JSONObject {
         return JSONObject().apply {
             put(KEY_enabled, enabled)
             put(KEY_read, read)
             put(KEY_share, share)
-            put(KEY_filterMethod, filterMethod)
-            put(KEY_filterUrl, filterUrl)
+            putOpt(KEY_filterMethod, filterMethod)
+            putOpt(KEY_filterUrl, filterUrl)
         }
     }
 }

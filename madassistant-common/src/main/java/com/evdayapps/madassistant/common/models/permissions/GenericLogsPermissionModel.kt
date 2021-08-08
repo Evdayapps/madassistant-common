@@ -1,19 +1,19 @@
 package com.evdayapps.madassistant.common.models.permissions
 
+import com.evdayapps.madassistant.common.kotlinx.getStringOrNull
 import org.json.JSONObject
-import java.lang.Exception
 
 data class GenericLogsPermissionModel(
-    var enabled : Boolean = false,
-    var read : Boolean = false,
-    var share : Boolean = false,
-    var filterTag : String? = null,
-    var filterMessage : String? = null,
-    var logDebug : Boolean = false,
-    var logInfo : Boolean = false,
-    var logWarning : Boolean = false,
-    var logError : Boolean = false,
-    var logVerbose : Boolean = false
+    var enabled: Boolean = false,
+    var read: Boolean = false,
+    var share: Boolean = false,
+    var filterTag: String? = null,
+    var filterMessage: String? = null,
+    var logDebug: Boolean = true,
+    var logInfo: Boolean = true,
+    var logWarning: Boolean = true,
+    var logError: Boolean = true,
+    var logVerbose: Boolean = true
 ) {
 
     companion object {
@@ -30,32 +30,37 @@ data class GenericLogsPermissionModel(
     }
 
     @Throws(Exception::class)
-    constructor(json : JSONObject) : this() {
+    constructor(json: JSONObject) : this() {
         json.run {
-            enabled = getOr(KEY_enabled, false)
-            read = getOr(KEY_read, false)
-            share = getOr(KEY_share, false)
-            filterTag = if(has(KEY_filterTag)) getString(KEY_filterTag) else null
-            filterMessage = if(has(KEY_filterMessage)) getString(KEY_filterMessage) else null
-            logVerbose = getOr(KEY_logVerbose, false)
-            logInfo = getOr(KEY_logInfo, false)
-            logWarning = getOr(KEY_logWarning, false)
-            logError = getOr(KEY_logError, false)
+            enabled = json.optBoolean(KEY_enabled, false)
+            read = json.optBoolean(KEY_read, false)
+            share = json.optBoolean(KEY_share, false)
+
+            filterTag = json.getStringOrNull(KEY_filterTag)
+            filterMessage = json.getStringOrNull(KEY_filterMessage)
+
+            logVerbose = json.optBoolean(KEY_logVerbose, false)
+            logInfo = json.optBoolean(KEY_logInfo, false)
+            logWarning = json.optBoolean(KEY_logWarning, false)
+            logError = json.optBoolean(KEY_logError, false)
+            logDebug = json.optBoolean(KEY_logDebug, false)
         }
     }
 
-    fun toJsonObject() : JSONObject {
+    fun toJsonObject(): JSONObject {
         return JSONObject().apply {
             put(KEY_enabled, enabled)
             put(KEY_read, read)
             put(KEY_share, share)
-            put(KEY_filterTag, filterTag)
-            put(KEY_filterMessage, filterMessage)
+
             put(KEY_logVerbose, logVerbose)
             put(KEY_logInfo, logInfo)
             put(KEY_logWarning, logWarning)
             put(KEY_logError, logError)
             put(KEY_logDebug, logDebug)
+
+            putOpt(KEY_filterTag, filterTag)
+            putOpt(KEY_filterMessage, filterMessage)
         }
     }
 
