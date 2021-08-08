@@ -17,25 +17,25 @@ import org.json.JSONObject
  * val responseTimestamp : Long,
  * val response : String
  */
-class NetworkCallLogModel {
-
-    var threadName: String? = null
-    var connectTimeoutMillis: Int? = null
-    var readTimeoutMillis: Int? = null
-    var writeTimeoutMillis: Int? = null
-    var protocol: String? = null
-    var method: String = ""
-    var url: String = ""
-    var requestHeaders: JSONArray? = null
-    var requestTimestamp: Long = 0
-    var requestBody: String? = null
-    var responseHeaders: JSONArray? = null
-    var responseStatusCode: Int? = null
-    var responseTimestamp: Long = 0
-    var gzippedLength: Long? = null
-    var responseLength: Long? = null
-    var responseBody: String? = null
+data class NetworkCallLogModel(
+    var threadName: String? = null,
+    var connectTimeoutMillis: Int? = null,
+    var readTimeoutMillis: Int? = null,
+    var writeTimeoutMillis: Int? = null,
+    var protocol: String? = null,
+    var method: String = "",
+    var url: String = "",
+    var requestHeaders: JSONArray? = null,
+    var requestTimestamp: Long = 0,
+    var requestBody: String? = null,
+    var responseHeaders: JSONArray? = null,
+    var responseStatusCode: Int? = null,
+    var responseTimestamp: Long = 0,
+    var gzippedLength: Long? = null,
+    var responseLength: Long? = null,
+    var responseBody: String? = null,
     var exception: ExceptionModel? = null
+) {
 
     companion object {
         private const val KEY_threadName = "threadName"
@@ -63,38 +63,32 @@ class NetworkCallLogModel {
         private const val KEY_exception = "exception"
     }
 
-    constructor()
-
     @Throws(Exception::class)
-    constructor(json: String) {
-        JSONObject(json).apply {
-            threadName = getString(KEY_threadName)
-            protocol = optString(KEY_protocol, null)
-            method = optString(KEY_method, null)
-            url = optString(KEY_url, null)
+    constructor(json: JSONObject) : this(
+        threadName = json.getString(KEY_threadName),
+        protocol = json.optString(KEY_protocol, null),
+        method = json.optString(KEY_method, null),
+        url = json.optString(KEY_url, null),
 
-            // Request
-            connectTimeoutMillis = getInt(KEY_connect_timeout_ms)
-            readTimeoutMillis = getInt(KEY_read_timeout_ms)
-            writeTimeoutMillis = getInt(KEY_write_timeout_ms)
-            requestTimestamp = getLong(KEY_request_timestamp)
-            requestHeaders = getJSONArray(KEY_request_headers)
-            requestBody = optString(KEY_request_body)
+        // Request
+        connectTimeoutMillis = json.getInt(KEY_connect_timeout_ms),
+        readTimeoutMillis = json.getInt(KEY_read_timeout_ms),
+        writeTimeoutMillis = json.getInt(KEY_write_timeout_ms),
+        requestTimestamp = json.getLong(KEY_request_timestamp),
+        requestHeaders = json.getJSONArray(KEY_request_headers),
+        requestBody = json.optString(KEY_request_body),
 
-            // Response
-            responseTimestamp = getLong(KEY_response_timestamp)
-            responseStatusCode = getInt(KEY_response_status_code)
-            responseHeaders = optJSONArray(KEY_response_headers)
-            responseBody = optString(KEY_response_body)
-            responseLength = optLong(KEY_response_length)
-            gzippedLength = optLong(KEY_response_gzipped_length)
+        // Response
+        responseTimestamp = json.getLong(KEY_response_timestamp),
+        responseStatusCode = json.getInt(KEY_response_status_code),
+        responseHeaders = json.optJSONArray(KEY_response_headers),
+        responseBody = json.optString(KEY_response_body),
+        responseLength = json.optLong(KEY_response_length),
+        gzippedLength = json.optLong(KEY_response_gzipped_length),
 
-            // Exception
-            exception = optJSONObject(KEY_exception)?.run {
-                ExceptionModel(this)
-            }
-        }
-    }
+        // Exception
+        exception = json.optJSONObject(KEY_exception)?.run { ExceptionModel(this) }
+    )
 
     fun toJsonObject(): JSONObject {
         return JSONObject().apply {
@@ -116,7 +110,7 @@ class NetworkCallLogModel {
             put(KEY_response_headers, responseHeaders)
             put(KEY_response_length, responseLength)
 
-            putOpt(KEY_response_gzipped_length, this)
+            putOpt(KEY_response_gzipped_length, gzippedLength)
             putOpt(KEY_exception, exception?.toJsonObject())
         }
     }
