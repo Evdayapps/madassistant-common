@@ -2,7 +2,7 @@ package com.evdayapps.madassistant.common.models.analytics
 
 import org.json.JSONObject
 
-data class AnalyticsEventModel(
+data class AnalyticsEventModel constructor(
     var threadName: String,
     var destination: String,
     var name: String,

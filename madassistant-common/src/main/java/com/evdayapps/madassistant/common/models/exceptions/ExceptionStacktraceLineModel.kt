@@ -18,6 +18,10 @@ data class ExceptionStacktraceLineModel(
         const val keyLineNumber = "lineNumber"
     }
 
+    val printLine by lazy {
+        "$className.$methodName  ($fileName:$lineNumber)"
+    }
+
     constructor(element: StackTraceElement) : this(
         className = element.className,
         fileName = element.fileName,

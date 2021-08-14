@@ -7,10 +7,10 @@ data class MADAssistantPermissions(
     var timestampStart: Long? = null,
     var timestampEnd: Long? = null,
     var deviceId: String? = null,
-    var networkCalls: ApiCallsPermissionModel? = null,
-    var analytics: AnalyticsPermissionModel? = null,
-    var exceptions: ExceptionsPermissionModel? = null,
-    var genericLogs: GenericLogsPermissionModel? = null,
+    var networkCalls: ApiCallsPermissionModel = ApiCallsPermissionModel(),
+    var analytics: AnalyticsPermissionModel = AnalyticsPermissionModel(),
+    var exceptions: ExceptionsPermissionModel = ExceptionsPermissionModel(),
+    var genericLogs: GenericLogsPermissionModel = GenericLogsPermissionModel(),
     var randomString: String? = System.currentTimeMillis().toString()
 ) {
 
@@ -33,44 +33,44 @@ data class MADAssistantPermissions(
 
         deviceId = json.optString(KEY_deviceId, "")
 
-        networkCalls = json.optJSONObject(KEY_networkCalls)?.run {
+        networkCalls = json.getJSONObject(KEY_networkCalls).run {
             try {
                 ApiCallsPermissionModel(this)
             } catch (ex: Exception) {
-                null
+                ApiCallsPermissionModel()
             }
         }
 
-        analytics = json.optJSONObject(KEY_analytics)?.run {
+        analytics = json.getJSONObject(KEY_analytics).run {
             try {
                 AnalyticsPermissionModel(this)
             } catch (ex: Exception) {
-                null
+                AnalyticsPermissionModel()
             }
         }
 
-        exceptions = json.optJSONObject(KEY_exceptions)?.run {
+        exceptions = json.getJSONObject(KEY_exceptions).run {
             try {
                 ExceptionsPermissionModel(this)
             } catch (ex: Exception) {
-                null
+                ExceptionsPermissionModel()
             }
         }
 
-        genericLogs = json.optJSONObject(KEY_genericLogs)?.run {
+        genericLogs = json.getJSONObject(KEY_genericLogs).run {
             try {
                 GenericLogsPermissionModel(this)
             } catch (ex: Exception) {
-                null
+                GenericLogsPermissionModel()
             }
         }
     }
 
     fun toJsonObject(): JSONObject {
-        networkCalls?.apply { enabled = share || read }
-        genericLogs?.apply { enabled = share || read }
-        analytics?.apply { enabled = share || read }
-        exceptions?.apply { enabled = share || read }
+        networkCalls.apply { enabled = share || read }
+        genericLogs.apply { enabled = share || read }
+        analytics.apply { enabled = share || read }
+        exceptions.apply { enabled = share || read }
 
         return JSONObject().apply {
             put(KEY_deviceId, deviceId)
@@ -80,10 +80,10 @@ data class MADAssistantPermissions(
             putOpt(KEY_timestampStart, timestampStart)
             putOpt(KEY_timestampEnd, timestampEnd)
 
-            putOpt(KEY_networkCalls, networkCalls?.toJsonObject())
-            putOpt(KEY_genericLogs, genericLogs?.toJsonObject())
-            putOpt(KEY_exceptions, exceptions?.toJsonObject())
-            putOpt(KEY_analytics, analytics?.toJsonObject())
+            putOpt(KEY_networkCalls, networkCalls.toJsonObject())
+            putOpt(KEY_genericLogs, genericLogs.toJsonObject())
+            putOpt(KEY_exceptions, exceptions.toJsonObject())
+            putOpt(KEY_analytics, analytics.toJsonObject())
         }
     }
 }
