@@ -7,15 +7,11 @@ class ApiCallsPermissionModelTest {
 
     private fun testJson(
         enabled: Boolean = false,
-        read: Boolean = false,
-        share: Boolean = false,
         filterMethod: String? = null,
         filterUrl: String? = null
     ): ApiCallsPermissionModel {
         val input = ApiCallsPermissionModel(
             enabled = enabled,
-            read = read,
-            share = share,
             filterMethod = filterMethod,
             filterUrl = filterUrl
         )
@@ -30,8 +26,6 @@ class ApiCallsPermissionModelTest {
     fun serializeSimpleObject() {
         testJson(
             enabled = true,
-            read = true,
-            share = true,
             filterMethod = ".*(GET|POST).*",
             filterUrl = null
         )
@@ -41,12 +35,9 @@ class ApiCallsPermissionModelTest {
     fun withRegexUrlFilter() {
         testJson(
             enabled = true,
-            read = true,
             filterMethod = null,
             filterUrl = "/records/.*"
-        ).apply {
-            assertEquals(false, this.share)
-        }
+        )
     }
 
 }

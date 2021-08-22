@@ -7,16 +7,12 @@ class AnalyticsPermissionModelTest {
 
     private fun testJson(
         enabled: Boolean = false,
-        read: Boolean = false,
-        share: Boolean = false,
         filterDestination: String? = null,
         filterEventName: String? = null,
         filterParamData: String? = null
     ) {
         val input = AnalyticsPermissionModel(
             enabled = enabled,
-            read = read,
-            share = share,
             filterDestination = filterDestination,
             filterEventName = filterEventName,
             filterParamData = filterParamData
@@ -30,8 +26,6 @@ class AnalyticsPermissionModelTest {
     fun serializeSimpleObject() {
         testJson(
             enabled = true,
-            read = true,
-            share = true,
             filterDestination = "Test*",
             filterEventName = null
         )
@@ -41,7 +35,6 @@ class AnalyticsPermissionModelTest {
     fun serializeRegexFilter() {
         testJson(
             enabled = true,
-            read = true,
             filterDestination = "(Destination1|Destination2).*",
             filterParamData = "\"screen_view\""
         )

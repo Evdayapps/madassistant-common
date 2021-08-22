@@ -27,12 +27,4 @@ class MADAssistantCipherImplTest {
         assertEquals(plainText, deciphered)
     }
 
-    @Test
-    fun testPermissionModel() {
-        val input = MADAssistantPermissions(
-            deviceId = "fsdfsdfsd",
-
-        )
-    }
-
 }
