@@ -15,7 +15,7 @@ import org.json.JSONObject
  * @property genericLogs Permissions for generic logs
  * @property randomString A random string (current timestamp) added to
  */
-data class MADAssistantPermissions(
+data class MADAssistantPermissions constructor(
     val deviceId: String?,
     val timestampStart: Long?,
     val timestampEnd: Long?,

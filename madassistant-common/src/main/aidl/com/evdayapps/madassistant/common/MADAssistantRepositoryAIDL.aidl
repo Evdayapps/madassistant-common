@@ -29,7 +29,7 @@ interface MADAssistantRepositoryAIDL {
     /**
     * Informs the repository that it should attempt to update the application changelog
     **/
-    void updateChangelog(boolean encrypted, long timestamp);
+    void updatePackageInfo(long timestamp);
 
     void log(in TransmissionModel data);
 }
