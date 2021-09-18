@@ -8,7 +8,6 @@ import android.os.Parcelable.Creator
  * Model for data that is transmitted from the client to the repository
  */
 class TransmissionModel(
-    val sessionId: Long,
     val transmissionId: String?,
     var timestamp: Long,
     val numTotalSegments: Int,
@@ -19,7 +18,6 @@ class TransmissionModel(
 ) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-        sessionId = parcel.readLong(),
         transmissionId = parcel.readString(),
         timestamp = parcel.readLong(),
         numTotalSegments = parcel.readInt(),
@@ -30,7 +28,6 @@ class TransmissionModel(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeLong(sessionId)
         parcel.writeString(transmissionId)
         parcel.writeLong(timestamp)
         parcel.writeInt(numTotalSegments)

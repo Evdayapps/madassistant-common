@@ -1,7 +1,7 @@
 package com.evdayapps.madassistant.common
 
 object MADAssistantConstants {
-    const val LibraryVersion = 1
+    const val AIDLVersion = 1
 }
 
 
