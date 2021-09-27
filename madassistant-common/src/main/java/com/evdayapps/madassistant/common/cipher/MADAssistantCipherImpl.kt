@@ -105,9 +105,9 @@ class MADAssistantCipherImpl(
         BadPaddingException::class,
         IOException::class
     )
-    override fun decrypt(cipherText: String): String? {
+    override fun decrypt(cipherText: String, passphrase: String?): String? {
         val cipheredBytes: ByteArray = Base64.decode(cipherText, Base64.NO_WRAP)
-        val keyBytes = getKeyBytes(passPhrase)
+        val keyBytes = getKeyBytes(passphrase ?: passPhrase)
 
         return String(decrypt(cipheredBytes, keyBytes, keyBytes)!!, charset)
     }
