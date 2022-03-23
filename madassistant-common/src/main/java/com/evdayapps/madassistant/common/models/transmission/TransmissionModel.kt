@@ -9,6 +9,7 @@ import android.os.Parcelable.Creator
  */
 class TransmissionModel(
     val transmissionId: String?,
+    val sessionId: Long,
     var timestamp: Long,
     val numTotalSegments: Int,
     val currentSegmentIndex: Int,
@@ -19,16 +20,18 @@ class TransmissionModel(
 
     constructor(parcel: Parcel) : this(
         transmissionId = parcel.readString(),
+        sessionId = parcel.readLong(),
         timestamp = parcel.readLong(),
         numTotalSegments = parcel.readInt(),
         currentSegmentIndex = parcel.readInt(),
         type = parcel.readInt(),
         encrypted = parcel.readByte() != 0.toByte(),
-        payload = parcel.createByteArray() ?: ByteArray(0)
+        payload = parcel.createByteArray()?: ByteArray(0)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(transmissionId)
+        parcel.writeLong(sessionId)
         parcel.writeLong(timestamp)
         parcel.writeInt(numTotalSegments)
         parcel.writeInt(currentSegmentIndex)
@@ -37,9 +40,7 @@ class TransmissionModel(
         parcel.writeByteArray(payload)
     }
 
-    override fun describeContents(): Int {
-        return 0
-    }
+    override fun describeContents(): Int = 0
 
     companion object CREATOR : Creator<TransmissionModel> {
         override fun createFromParcel(parcel: Parcel): TransmissionModel {
@@ -50,6 +51,4 @@ class TransmissionModel(
             return arrayOfNulls(size)
         }
     }
-
-
 }

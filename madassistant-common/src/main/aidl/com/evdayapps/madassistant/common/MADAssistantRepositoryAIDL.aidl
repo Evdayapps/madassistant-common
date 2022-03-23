@@ -22,5 +22,15 @@ interface MADAssistantRepositoryAIDL {
     */
     void disconnect(int code, String message);
 
+    /**
+     * Start a new session
+     */
+    void startSession(long sessionId);
+
+    /**
+     * End an ongoing session
+     */
+    void endSession(long sessionId);
+
     void log(in TransmissionModel data);
 }
