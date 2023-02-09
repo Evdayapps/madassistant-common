@@ -11,6 +11,9 @@ import javax.crypto.NoSuchPaddingException
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
+/**
+ * An implementation of [MADAssistantCipher]
+ */
 class MADAssistantCipherImpl(
     private val passPhrase: String
 ) : MADAssistantCipher {
@@ -85,7 +88,8 @@ class MADAssistantCipherImpl(
         BadPaddingException::class
     )
     override fun encrypt(
-        plainText: String
+        plainText: String,
+        passphrase : String?
     ): String {
         val plainTextbytes: ByteArray = plainText.toByteArray(charset = charset)
         val keyBytes = getKeyBytes(passPhrase)

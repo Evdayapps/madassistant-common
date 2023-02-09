@@ -11,7 +11,10 @@ fun JSONObject.getStringOrNull(key: String): String? {
 
 fun <T> JSONObject.getOr(key: String, defaultValue: T): T {
     return try {
-        if (has(key)) (get(key) as T) else defaultValue
+        when {
+            has(key) -> get(key) as T
+            else -> defaultValue
+        }
     } catch (ex: Exception) {
         defaultValue
     }

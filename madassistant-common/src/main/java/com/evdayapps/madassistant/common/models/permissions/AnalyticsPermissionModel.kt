@@ -3,6 +3,9 @@ package com.evdayapps.madassistant.common.models.permissions
 import com.evdayapps.madassistant.common.kotlinx.getStringOrNull
 import org.json.JSONObject
 
+/**
+ * Class for recording Analytics calls
+ */
 data class AnalyticsPermissionModel(
     val enabled: Boolean = false,
     val filterDestination: String? = null,
