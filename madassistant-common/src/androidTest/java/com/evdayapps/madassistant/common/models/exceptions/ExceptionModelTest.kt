@@ -10,7 +10,7 @@ class ExceptionModelTest {
     private fun runAssertations(input: ExceptionModel, output: ExceptionModel) {
         assertEquals(input.exceptionThreadName, output.exceptionThreadName)
         assertEquals(input.type, output.type)
-        assertEquals(input.message, output.message)
+        assertEquals(input.throwableMessage, output.throwableMessage)
         assertEquals(input.cause, output.cause)
         assertEquals(input.crash, output.crash)
         assertEquals(input.stackTrace, output.stackTrace)

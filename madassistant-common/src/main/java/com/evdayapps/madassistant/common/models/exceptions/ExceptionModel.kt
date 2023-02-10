@@ -8,7 +8,8 @@ import org.json.JSONObject
  * @property exceptionThreadName The thread on which the exception occured
  * @property crash Is this a crash?
  * @property type The className of the exception
- * @property message The message retrieved from the throwable
+ * @property message A custom message to explain the error
+ * @property throwableMessage The message retrieved from the throwable
  * @property stackTrace Stacktrace from the throwable
  * @property cause Cause of the exception, if any
  * @property threads Stacktraces for the other threads
@@ -17,7 +18,9 @@ data class ExceptionModel(
     var exceptionThreadName: String,
     var crash: Boolean,
     var type: String?,
-    var message: String?,
+    var message: String? = null,
+    var throwableMessage: String?,
+    var data: JSONObject? = null,
     var stackTrace: List<ExceptionStacktraceLineModel>,
     var cause: ExceptionModel?,
     var threads: Map<String, List<ExceptionStacktraceLineModel>>?
@@ -28,6 +31,8 @@ data class ExceptionModel(
         private const val KEY_isCrash = "isCrash"
         private const val KEY_type = "type"
         private const val KEY_message = "message"
+        private const val KEY_data = "data"
+        private const val KEY_throwableMessage = "throwableMessage"
         private const val KEY_stacktrace = "stacktrace"
         private const val KEY_cause = "cause"
         private const val KEY_threads = "threads"
@@ -62,14 +67,18 @@ data class ExceptionModel(
      */
     constructor(
         threadName: String,
+        message: String? = null,
+        data: JSONObject? = null,
         throwable: Throwable,
         isCrash: Boolean,
-        nested: Boolean = false
+        nested: Boolean = false,
     ) : this(
         exceptionThreadName = threadName,
         crash = isCrash,
         type = throwable.javaClass.canonicalName,
-        message = throwable.message,
+        throwableMessage = throwable.message,
+        message = message,
+        data = data,
         stackTrace = throwable.stackTrace.map { ExceptionStacktraceLineModel(it) },
         cause = throwable.cause?.run {
             ExceptionModel(
@@ -100,7 +109,9 @@ data class ExceptionModel(
         exceptionThreadName = json.getString(KEY_exceptionThreadName),
         crash = json.optBoolean(KEY_isCrash, true),
         type = json.getStringOrNull(KEY_type),
+        throwableMessage = json.getStringOrNull(KEY_throwableMessage),
         message = json.getStringOrNull(KEY_message),
+        data = json.optJSONObject(KEY_data),
         cause = json.optJSONObject(KEY_cause)?.run {
             try {
                 ExceptionModel(this)
@@ -125,6 +136,8 @@ data class ExceptionModel(
             put(KEY_isCrash, crash)
             put(KEY_type, type)
             putOpt(KEY_message, message)
+            putOpt(KEY_data, data)
+            putOpt(KEY_throwableMessage, throwableMessage)
             cause?.run {
                 put(KEY_cause, this.toJsonObject())
             }
