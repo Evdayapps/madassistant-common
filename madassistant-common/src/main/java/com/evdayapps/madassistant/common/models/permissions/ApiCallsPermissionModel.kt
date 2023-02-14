@@ -24,7 +24,7 @@ data class ApiCallsPermissionModel(
         enabled = json.optBoolean(KEY_enabled, false),
         filterMethod = json.getStringOrNull(KEY_filterMethod),
         filterUrl = json.getStringOrNull(KEY_filterUrl),
-        redactHeaders = json.getJSONArray(KEY_redactHeaders)?.let {
+        redactHeaders = json.optJSONArray(KEY_redactHeaders)?.let {
             List(it.length()) { index -> it.getString(index) }
         }
     )
